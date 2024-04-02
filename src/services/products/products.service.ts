@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateProductDto, UpdateProductDto } from 'src/dtos/products.dto';
 import { Product } from 'src/entities/product.entity';
 
 @Injectable()
 export class ProductsService {
-  private counterId = 1
+  private counterId = 1;
   private products: Product[] = [
     {
       id: 1,
@@ -11,41 +12,52 @@ export class ProductsService {
       description: 'Descripcion',
       price: 10,
       stock: 100,
-      image: "imageURL"
-    }
-  ]
+      image: 'imageURL',
+    },
+  ];
 
   findAll() {
-    return this.products
+    return this.products;
   }
 
   findOne(id: number) {
-    return this.products.find(item => item.id == id)
-  }
-
-  create(payload: any) {
-    this.counterId++
-    const newProduct = {
-      id: this.counterId
-      ...payload
+    const product = this.products.find((item) => item.id == id);
+    if (!product) {
+      throw new NotFoundException(`Product #${id} not found`);
     }
-    this.products.push(newProduct)
-    return newProduct
+    return product;
   }
 
-  update(id: number, payload: any) {
-    const idx = this.products.findIndex(item => item.id == id)
+  create(payload: CreateProductDto) {
+    this.counterId++;
+    const newProduct = {
+      id: this.counterId,
+      ...payload,
+    };
+    this.products.push(newProduct);
+    return newProduct;
+  }
 
-    if (idx === undefined) return undefined
-
-    this.products[idx] = { id: id, ...payload }
+  update(id: number, payload: UpdateProductDto) {
+    const product = this.findOne(id);
+    if (product) {
+      const idx = this.products.findIndex((item) => item.id == id);
+      this.products[idx] = {
+        ...product,
+        ...payload,
+      };
+      return this.products[idx];
+    }
+    return null;
   }
 
   delete(id: number) {
-    const product = this.findOne(id)
-    const idx = this.products.findIndex(item => item.id == id)
-    if (idx === undefined) return undefined
-    this.products.splice(idx, 1)
-    return product
+    const idx = this.products.findIndex((item) => item.id == id);
+    if (idx === -1) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+    const product = this.findOne(id);
+    this.products.splice(idx, 1);
+    return product;
   }
 }

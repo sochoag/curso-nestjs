@@ -1,13 +1,22 @@
-import { Controller, Get, Query, Param, Post, Put, Body, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Param,
+  Post,
+  Put,
+  Body,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { ParseIntPipe } from 'src/common/parse-int/parse-int.pipe';
+import { CreateProductDto, UpdateProductDto } from 'src/dtos/products.dto';
+import { ProductsService } from 'src/services/products/products.service';
 
 @Controller('products')
 export class ProductsController {
-
-  // @Get('products')
-  // getProducts(@Query() query: any): string {
-  //   const { limit, offset } = query;
-  //   return `products limit:${limit} y offset:${offset}`
-  // }
+  constructor(private productsService: ProductsService) {}
 
   @Get()
   getProducts(
@@ -15,48 +24,27 @@ export class ProductsController {
     @Query('offset') offset = 30,
     @Query('brand') brand: string,
   ) {
-    return {
-      message: `Limit:${limit}, Offset:${offset}, Brand:${brand}`
-    }
-  }
-
-  @Get('filter')
-  getProductFilter() {
-    return {
-      message: `Holi soy un filtro`
-    }
+    return this.productsService.findAll();
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.ACCEPTED)
-  getOne(@Param('id') id: string) {
-    return {
-      message: `Holi ${id}`
-    }
+  getOne(@Param('id', ParseIntPipe) id: number) {
+    return this.productsService.findOne(id);
   }
 
   @Post()
-  create(@Body() payload: any) {
-    return {
-      message: 'Accion de crear',
-      payload
-    }
+  create(@Body() payload: CreateProductDto) {
+    return this.productsService.create(payload);
   }
 
   @Put(':id')
-  update(@Param() params: any, @Body() payload: any) {
-    return {
-      message: 'Accion de actualizar',
-      id: params.id,
-      payload
-    }
+  update(@Param() params: any, @Body() payload: UpdateProductDto) {
+    return this.productsService.update(params.id, payload);
   }
 
   @Delete(':id')
   delete(@Param() params: any) {
-    return {
-      message: 'Accion de eliminar',
-      id: params.id,
-    }
+    return this.productsService.delete(params.id);
   }
 }
