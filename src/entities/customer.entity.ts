@@ -1,8 +1,6 @@
-export class Product {
+export class Customer {
   id: number;
   name: string;
-  description: string;
-  price: number;
-  stock: number;
-  image: string;
+  lastName: string;
+  phone: string;
 }
