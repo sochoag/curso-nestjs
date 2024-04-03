@@ -1,5 +1,5 @@
 export const enviroments = {
-  dev: '.env.development.local',
+  dev: '.env',
   prod: '.env.production.local',
   test: '.env.test.local',
 };

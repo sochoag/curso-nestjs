@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { MongoClient } from 'mongodb';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -16,14 +17,19 @@ import config from './config';
     ProductsModule,
     DatabaseModule,
     ConfigModule.forRoot({
-      envFilePath:
-        enviroments[process.env.NODE_ENV] || '.env.development.local',
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
       load: [config],
       isGlobal: true,
       validationSchema: Joi.object({
-        API_KEY: Joi.string().required(),
-        DATABASE_NAME: Joi.string().required(),
-        DATABASE_PORT: Joi.number().required(),
+        MONGO_DB: Joi.required(),
+        MONGO_USERNAME: Joi.required(),
+        MONGO_PASSWORD: Joi.required(),
+        MONGO_HOST: Joi.required(),
+        MONGO_CONNECTION: Joi.required(),
+        MONGO_PORT: Joi.required(),
+        // API_KEY: Joi.string().required(),
+        // DATABASE_NAME: Joi.string().required(),
+        // DATABASE_PORT: Joi.number().required(),
       }),
     }),
   ],

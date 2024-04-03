@@ -1,16 +1,30 @@
 import { Global, Module } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { MongoClient } from 'mongodb';
+import config from 'src/config';
 
-const API_KEY = '8805db7a-0e62-403c-b22c-031f87bb583c';
-const API_KEY_PROD = 'e56f9c23-b9b0-4f06-a7ed-77cf57f48aa2';
+// const taskCollection = database.collection('tasks');
+// const task = await taskCollection.find().toArray();
+// console.log('Lista de tareas:');
+// console.log(task);
 
 @Global()
 @Module({
   providers: [
     {
-      provide: 'API_KEY',
-      useValue: process.env.NODE_ENV === 'prod' ? API_KEY_PROD : API_KEY,
+      provide: 'MONGO',
+      useFactory: async (configService: ConfigType<typeof config>) => {
+        const { connection, user, password, dbName, host, port } =
+          configService.mongo;
+        const uri = `${connection}://${user}:${password}@${host}:${port}`;
+        const client = new MongoClient(uri);
+        await client.connect();
+        const database = client.db(`${dbName}`);
+        return database;
+      },
+      inject: [config.KEY],
     },
   ],
-  exports: ['API_KEY'],
+  exports: ['MONGO'],
 })
 export class DatabaseModule {}

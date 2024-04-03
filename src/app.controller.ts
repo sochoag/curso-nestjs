@@ -19,4 +19,9 @@ export class AppController {
   holi(): string {
     return 'Holi con /sas/';
   }
+
+  @Get('tasks')
+  getTasks() {
+    return this.appService.getTasks();
+  }
 }
