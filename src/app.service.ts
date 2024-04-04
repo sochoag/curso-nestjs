@@ -7,7 +7,6 @@ import config from './config';
 @Injectable()
 export class AppService {
   constructor(
-    @Inject('MONGO') private database: Db,
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
   ) {}
 
@@ -22,7 +21,6 @@ export class AppService {
   }
 
   getTasks() {
-    const taskCollection = this.database.collection('tasks');
-    return taskCollection.find().toArray();
+    return 'Holi';
   }
 }
