@@ -1,64 +1,57 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import {
   CreateCustomerDto,
+  FilterCustomersDto,
   UpdateCustomerDto,
 } from 'src/users/dtos/customer.dto';
 import { Customer } from 'src/users/entities/customer.entity';
 
 @Injectable()
 export class CustomersService {
-  private counterId = 1;
-  private customers: Customer[] = [
-    {
-      id: 1,
-      name: 'Customer 1',
-      lastName: 'Descripcion',
-      phone: '+593987654247',
-    },
-  ];
+  constructor(
+    @InjectModel(Customer.name) private customerModel: Model<Customer>,
+  ) {}
 
-  findAll() {
-    return this.customers;
+  async findAll(params?: FilterCustomersDto) {
+    if (params) {
+      const { limit, offset } = params;
+      return await this.customerModel.find().skip(offset).limit(limit);
+    }
+    return await this.customerModel.find();
   }
 
-  findOne(id: number) {
-    const customer = this.customers.find((item) => item.id == id);
+  async findOne(id: string) {
+    const customer = this.customerModel.findById(id);
     if (!customer) {
       throw new NotFoundException(`Customer #${id} not found`);
     }
     return customer;
   }
 
-  create(payload: CreateCustomerDto) {
-    this.counterId++;
-    const newProduct = {
-      id: this.counterId,
-      ...payload,
-    };
-    this.customers.push(newProduct);
-    return newProduct;
+  async create(payload: CreateCustomerDto) {
+    const newCustomer = new this.customerModel(payload);
+    return await newCustomer.save();
   }
 
-  update(id: number, payload: UpdateCustomerDto) {
-    const customer = this.findOne(id);
-    if (customer) {
-      const idx = this.customers.findIndex((item) => item.id == id);
-      this.customers[idx] = {
-        ...customer,
-        ...payload,
-      };
-      return this.customers[idx];
+  async update(id: string, payload: UpdateCustomerDto) {
+    const customer = await this.customerModel.findByIdAndUpdate(
+      id,
+      { $set: payload },
+      { new: true },
+    );
+    if (!customer) {
+      throw new NotFoundException(`Customer #${id} not found`);
     }
-    return null;
+    return customer;
   }
 
-  delete(id: number) {
-    const idx = this.customers.findIndex((item) => item.id == id);
-    if (idx === -1) {
+  async delete(id: string) {
+    const customer = await this.customerModel.findByIdAndDelete(id);
+    if (!customer) {
       throw new NotFoundException(`Customer ${id} not found`);
     }
-    const customer = this.findOne(id);
-    this.customers.splice(idx, 1);
     return customer;
   }
 }

@@ -8,9 +8,9 @@ import {
   Body,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/services/users.service';
-import { ParseIntPipe } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/users/dtos/user.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { MongoIdPipe } from 'src/common/mongo-id/mongo-id.pipe';
 
 const controller_name = 'users';
 
@@ -27,13 +27,13 @@ export class UsersController {
 
   @ApiOperation({ summary: `List ${controller_name} by id` })
   @Get(':id')
-  getOne(@Param('id', ParseIntPipe) id: number) {
+  getOne(@Param('id', MongoIdPipe) id: string) {
     return this.userService.findOne(id);
   }
 
   @ApiOperation({ summary: `List ${controller_name} orders by id` })
   @Get(':id/orders')
-  getOrders(@Param('id', ParseIntPipe) id: number) {
+  getOrders(@Param('id', MongoIdPipe) id: string) {
     return this.userService.getOrdersByUser(id);
   }
 
@@ -45,13 +45,13 @@ export class UsersController {
 
   @ApiOperation({ summary: `Update ${controller_name} by id` })
   @Put(':id')
-  update(@Param() params: any, @Body() payload: UpdateUserDto) {
-    return this.userService.update(params.id, payload);
+  update(@Param('id', MongoIdPipe) id: string, @Body() payload: UpdateUserDto) {
+    return this.userService.update(id, payload);
   }
 
   @ApiOperation({ summary: `Delete ${controller_name} by id` })
   @Delete(':id')
-  delete(@Param() params: any) {
-    return this.userService.delete(params.id);
+  delete(@Param('id', MongoIdPipe) id: string) {
+    return this.userService.delete(id);
   }
 }

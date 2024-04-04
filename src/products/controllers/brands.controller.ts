@@ -9,6 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { MongoIdPipe } from 'src/common/mongo-id/mongo-id.pipe';
 import { CreateBrandDto, UpdateBrandDto } from 'src/products/dtos/brand.dto';
 import { BrandsService } from 'src/products/services/brands.service';
 
@@ -27,7 +28,7 @@ export class BrandsController {
 
   @ApiOperation({ summary: `List ${controller_name} by id` })
   @Get(':id')
-  getOne(@Param('id', ParseIntPipe) id: number) {
+  getOne(@Param('id', MongoIdPipe) id: string) {
     return this.brandsService.findOne(id);
   }
 
@@ -39,13 +40,16 @@ export class BrandsController {
 
   @ApiOperation({ summary: `Update ${controller_name} by id` })
   @Put(':id')
-  update(@Param() params: any, @Body() payload: UpdateBrandDto) {
-    return this.brandsService.update(params.id, payload);
+  update(
+    @Param('id', MongoIdPipe) id: string,
+    @Body() payload: UpdateBrandDto,
+  ) {
+    return this.brandsService.update(id, payload);
   }
 
   @ApiOperation({ summary: `Delete ${controller_name} by id` })
   @Delete(':id')
-  delete(@Param() params: any) {
-    return this.brandsService.delete(params.id);
+  delete(@Param('id', MongoIdPipe) id: string) {
+    return this.brandsService.delete(id);
   }
 }

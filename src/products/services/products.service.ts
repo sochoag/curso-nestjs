@@ -22,7 +22,7 @@ export class ProductsService {
       if (minPrice && maxPrice) {
         filters.price = { $gte: minPrice, $lte: maxPrice };
       }
-      return await this.productModel.find().skip(offset).limit(limit);
+      return await this.productModel.find(filters).skip(offset).limit(limit);
     }
     return await this.productModel.find();
   }
@@ -42,7 +42,7 @@ export class ProductsService {
     // const result = await this.productModel.create(newProduct);
     // return result;
     const newProduct = new this.productModel(payload);
-    return newProduct.save();
+    return await newProduct.save();
   }
 
   async update(id: string, payload: UpdateProductDto) {
